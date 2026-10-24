@@ -25,7 +25,7 @@ A beginner-friendly library collection manager with a responsive admin dashboard
    MONGODB_URI=mongodb+srv://your-username:your-password@your-cluster.mongodb.net/library_management?retryWrites=true&w=majority
    ```
 
-   Replace the username, password, and cluster host with your own values. If a password contains reserved URL characters, URL-encode those characters. Never commit `.env` or share its credentials; it is excluded by `.gitignore`.
+   Replace the username, password, and cluster host with your own values. URL-encode reserved characters in the username or password before putting them in the URI. For example, `@` inside a password must be written as `%40`; otherwise, the URI parser can mistake part of the password for the cluster hostname. Never commit `.env` or share its credentials; it is excluded by `.gitignore`.
 
 4. Start the API:
 
@@ -248,8 +248,11 @@ Book forms include an optional description. The dashboard uses the same REST API
 5. Add environment variables in Render's service settings:
    - `MONGODB_URI`: your MongoDB Atlas connection string
    - `NODE_ENV`: `production` (optional)
-6. In MongoDB Atlas, allow the Render service to connect through the cluster's network access settings. For production, use a suitably restricted network policy and a dedicated database user.
-7. Deploy. Render supplies the `PORT` environment variable automatically. Open the service URL for the frontend and test `/api/health` and the `/api/books` endpoints.
+6. If the database user's password contains reserved URI characters, URL-encode them in `MONGODB_URI` before saving it in Render. For example, replace `@` with `%40` in the password portion. Do not put database credentials in source files or commit `.env`.
+7. In MongoDB Atlas, allow the Render service to connect through the cluster's network access settings. For production, use a suitably restricted network policy and a dedicated database user.
+8. Deploy. Render supplies the `PORT` environment variable automatically. Open the service URL for the frontend and test `/api/health` and the `/api/books` endpoints.
+
+If Render logs show `querySrv ENOTFOUND` with a fragment of your password as the hostname, check that reserved characters in the Render `MONGODB_URI` are percent-encoded. Update the value in the Render dashboard and redeploy; changing your local `.env` does not change Render's environment variables.
 
 ## Project structure
 
