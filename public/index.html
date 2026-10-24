@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#102b46">
+    <meta name="description" content="A clean dashboard for managing your library collection.">
+    <title>Library Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar">
+        <a class="brand" href="/" data-nav="dashboard" aria-label="Library dashboard">
+          <span class="brand-mark" aria-hidden="true">▤</span>
+          <span class="brand-copy"><strong>Library</strong><small>MANAGEMENT SYSTEM</small></span>
+        </a>
+
+        <div class="side-label">WORKSPACE</div>
+        <nav class="side-nav" aria-label="Main navigation">
+          <button class="nav-link active" data-nav="dashboard"><span>▦</span> Dashboard</button>
+          <button class="nav-link" data-nav="books"><span>▤</span> All books</button>
+          <button class="nav-link" data-nav="add"><span>＋</span> Add a book</button>
+          <button class="nav-link" data-nav="categories"><span>◈</span> Categories</button>
+        </nav>
+
+        <div class="side-label side-label-lower">ACCOUNT</div>
+        <nav class="side-nav" aria-label="Account navigation">
+          <button class="nav-link" data-nav="profile"><span>◎</span> Library profile</button>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <div class="connection-indicator"><span class="connection-dot"></span><span id="connection-label">Connecting…</span></div>
+          <div class="sidebar-user">
+            <div class="avatar">L</div>
+            <div><strong>Library Admin</strong><small>Collection manager</small></div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="main-column">
+        <header class="topbar">
+          <button class="mobile-menu" id="mobile-menu" aria-label="Open navigation">☰</button>
+          <div class="breadcrumb"><span>Library</span><span class="crumb-slash">/</span><strong id="topbar-title">Dashboard</strong></div>
+          <label class="global-search">
+            <span aria-hidden="true">⌕</span>
+            <input id="global-search" type="search" placeholder="Search books, authors, or ISBN…" autocomplete="off">
+            <kbd>⌘ K</kbd>
+          </label>
+          <button class="icon-button" id="refresh-button" title="Refresh collection" aria-label="Refresh collection">↻</button>
+          <button class="user-chip" data-nav="profile"><span class="avatar avatar-small">L</span><span>Admin</span><span class="chevron">⌄</span></button>
+        </header>
+
+        <main id="page-content" class="page-content" tabindex="-1"></main>
+      </div>
+    </div>
+
+    <div class="toast-region" id="toast-region" aria-live="polite"></div>
+    <div class="modal-layer" id="modal-layer" hidden></div>
+  </body>
+</html>
