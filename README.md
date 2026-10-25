@@ -63,6 +63,7 @@ All book endpoints use JSON. Successful creation returns `201 Created`; successf
 | Method | Endpoint | Purpose |
 |---|---|---|
 | `GET` | `/` | Library dashboard |
+| `GET` | `/api` | API and database health status |
 | `GET` | `/api/health` | Database health status |
 | `POST` | `/api/books` | Add a book |
 | `GET` | `/api/books` | Retrieve all books |
@@ -177,6 +178,19 @@ Deleting a book that does not exist returns `404 Not Found`.
 ### 6. Check API and database status
 
 - Method: `GET`
+- URL: `http://localhost:3000/api`
+- Expected: `200 OK` while MongoDB is connected:
+
+```json
+{
+  "message": "Book Management API is running!",
+  "database": "connected"
+}
+```
+
+The endpoint returns `503 Service Unavailable` and `"database": "disconnected"` if MongoDB is not connected.
+
+The detailed health endpoint is also available:
 - URL: `http://localhost:3000/api/health`
 - Expected: `200 OK`:
 

@@ -66,6 +66,14 @@ const sampleBooks = [
 app.disable('x-powered-by');
 app.use(express.json({ limit: '20kb' }));
 
+app.get('/api', (req, res) => {
+  const databaseConnected = mongoose.connection.readyState === 1;
+  res.status(databaseConnected ? 200 : 503).json({
+    message: 'Book Management API is running!',
+    database: databaseConnected ? 'connected' : 'disconnected',
+  });
+});
+
 app.get('/api/health', (req, res) => {
   const databaseConnected = mongoose.connection.readyState === 1;
   res.status(databaseConnected ? 200 : 503).json({
