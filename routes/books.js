@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Book = require('../models/Book');
 
 const router = express.Router();
-const editableFields = ['title', 'author', 'isbn', 'category', 'description', 'quantity', 'available'];
+const editableFields = ['title', 'author', 'isbn', 'category', 'description', 'coverImage', 'quantity', 'available'];
 const requiredFields = ['title', 'author', 'isbn', 'category', 'quantity'];
 
 function validateBookInput(body, isUpdate = false) {
@@ -51,6 +51,22 @@ function validateBookInput(body, isUpdate = false) {
   if (body.description !== undefined) {
     if (typeof body.description !== 'string' || body.description.length > 500) {
       return 'Description must be a string of at most 500 characters';
+    }
+  }
+
+  if (body.coverImage !== undefined) {
+    if (typeof body.coverImage !== 'string' || body.coverImage.length > 2048) {
+      return 'Cover image must be a string of at most 2048 characters';
+    }
+    if (body.coverImage.trim()) {
+      try {
+        const coverUrl = new URL(body.coverImage);
+        if (!['http:', 'https:'].includes(coverUrl.protocol)) {
+          return 'Cover image URL must use HTTP or HTTPS';
+        }
+      } catch {
+        return 'Cover image must be a valid URL';
+      }
     }
   }
 

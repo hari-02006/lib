@@ -52,6 +52,7 @@ The API listens on `http://localhost:3000` by default. If the MongoDB connection
 | `quantity` | Number | Required, finite, non-negative |
 | `available` | Boolean | Optional; defaults to `true` |
 | `description` | String | Optional; up to 500 characters |
+| `coverImage` | String | Optional HTTP(S) image URL; if omitted, the dashboard looks up a cover by ISBN |
 | `createdAt` | Date | Automatically set by Mongoose |
 | `updatedAt` | Date | Automatically set by Mongoose |
 
@@ -238,6 +239,8 @@ After starting the server, open `http://localhost:3000` in a browser. The dashbo
 - A responsive sidebar for smaller screens
 
 Book forms include an optional description. The dashboard uses the same REST API and MongoDB data as Postman. The profile shown is a workspace label, not an authentication system; no login or user authorization is implemented.
+
+On first startup, five sample books are added only when the database collection is empty. Book covers are shown on the dashboard, in the book list, and on each book's detail page. When adding a book, paste an optional HTTP(S) cover image URL; if the field is blank, the dashboard tries to find a cover using the book's ISBN and displays a local placeholder if no cover is available.
 
 ## Deploy to Render
 

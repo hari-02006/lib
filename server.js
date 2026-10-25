@@ -10,6 +10,59 @@ const app = express();
 const port = process.env.PORT || 3000;
 const mongoUri = process.env.MONGODB_URI;
 
+const sampleBooks = [
+  {
+    title: 'Pride and Prejudice',
+    author: 'Jane Austen',
+    isbn: '9780141439518',
+    category: 'Classic Fiction',
+    quantity: 4,
+    available: true,
+    description: 'A witty and warm story of first impressions, family, and love.',
+    coverImage: 'https://covers.openlibrary.org/b/isbn/9780141439518-L.jpg',
+  },
+  {
+    title: 'The Great Gatsby',
+    author: 'F. Scott Fitzgerald',
+    isbn: '9780743273565',
+    category: 'Classic Fiction',
+    quantity: 3,
+    available: true,
+    description: 'A Jazz Age story of ambition, wealth, and the American dream.',
+    coverImage: 'https://covers.openlibrary.org/b/isbn/9780743273565-L.jpg',
+  },
+  {
+    title: 'To Kill a Mockingbird',
+    author: 'Harper Lee',
+    isbn: '9780061120084',
+    category: 'Literature',
+    quantity: 5,
+    available: true,
+    description: 'A moving novel about justice and growing up in the American South.',
+    coverImage: 'https://covers.openlibrary.org/b/isbn/9780061120084-L.jpg',
+  },
+  {
+    title: '1984',
+    author: 'George Orwell',
+    isbn: '9780451524935',
+    category: 'Science Fiction',
+    quantity: 2,
+    available: false,
+    description: 'A landmark dystopian novel about surveillance and individual freedom.',
+    coverImage: 'https://covers.openlibrary.org/b/isbn/9780451524935-L.jpg',
+  },
+  {
+    title: 'The Odyssey',
+    author: 'Homer',
+    isbn: '9780140449136',
+    category: 'Epic Poetry',
+    quantity: 3,
+    available: true,
+    description: 'The epic journey of Odysseus as he struggles to return home.',
+    coverImage: 'https://covers.openlibrary.org/b/isbn/9780140449136-L.jpg',
+  },
+];
+
 app.disable('x-powered-by');
 app.use(express.json({ limit: '20kb' }));
 
@@ -61,6 +114,10 @@ async function startServer() {
 
   await mongoose.connect(mongoUri);
   await Book.init();
+  if (await Book.estimatedDocumentCount() === 0) {
+    await Book.insertMany(sampleBooks);
+    console.log('Added five sample books to the empty collection.');
+  }
   app.listen(port, () => {
     console.log(`Library Management API is listening on port ${port}`);
   });

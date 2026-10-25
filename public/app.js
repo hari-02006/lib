@@ -112,6 +112,22 @@ function statusPill(available) {
   return `<span class="status-pill${available ? '' : ' unavailable'}">${available ? 'Available' : 'Unavailable'}</span>`;
 }
 
+function bookCoverUrl(book) {
+  return book.coverImage || `https://covers.openlibrary.org/b/isbn/${encodeURIComponent(book.isbn)}-L.jpg`;
+}
+
+function coverImage(book, className = '') {
+  return `<img class="${className}" src="${escapeHtml(bookCoverUrl(book))}" alt="Cover of ${escapeHtml(book.title)}" loading="lazy" onerror="this.onerror=null;this.src='/book-placeholder.svg'">`;
+}
+
+function bookCards(books) {
+  return `<div class="book-card-grid">${books.map((book) => `
+    <button class="book-card" data-action="view" data-id="${escapeHtml(book._id)}">
+      ${coverImage(book, 'book-card-cover')}
+      <span class="book-card-info"><strong>${escapeHtml(book.title)}</strong><small>${escapeHtml(book.author)}</small><span>${escapeHtml(book.category)}</span></span>
+    </button>`).join('')}</div>`;
+}
+
 function bookRows(books) {
   if (!books.length) {
     return `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">▤</div><h3>No books found</h3><p>Try changing your search or add a new title to the collection.</p><button class="button button-primary button-small" data-nav="add">Add a book</button></div></td></tr>`;
@@ -119,7 +135,7 @@ function bookRows(books) {
   return books.map((book, index) => `
     <tr>
       <td>${(state.pageNumber - 1) * state.pageSize + index + 1}</td>
-      <td><span class="book-title">${escapeHtml(book.title)}</span></td>
+      <td><span class="book-title-cell">${coverImage(book, 'book-thumb')}<span class="book-title">${escapeHtml(book.title)}</span></span></td>
       <td>${escapeHtml(book.author)}</td>
       <td>${escapeHtml(book.category)}</td>
       <td>${escapeHtml(book.isbn)}</td>
@@ -184,6 +200,7 @@ function renderDashboard() {
   const recent = [...state.books].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
   return `${heading('Dashboard', 'A quick overview of your library collection.', '<button class="button button-primary" data-nav="add"><span>＋</span> Add a book</button>')}
     <div class="stats-grid">${cards.map(([icon, label, value, note]) => `<article class="stat-card"><div class="stat-icon">${icon}</div><div><p>${label}</p><strong>${value}</strong><small>${note}</small></div></article>`).join('')}</div>
+    ${state.books.length ? `<section class="featured-books"><div class="panel-header"><div><h2>Explore your collection</h2><p>Find your next favorite read.</p></div><button class="text-button" data-nav="books">Browse all →</button></div>${bookCards(recent)}</section>` : ''}
     <section class="panel"><div class="panel-header"><h2>Recently added books</h2><button class="text-button" data-nav="books">View all books →</button></div>
       <div class="table-scroll"><table class="data-table"><thead><tr><th>#</th><th>Title</th><th>Author</th><th>Category</th><th>Quantity</th><th>Status</th><th>Action</th></tr></thead>
         <tbody>${recent.length ? recent.map((book, index) => `<tr><td>${index + 1}</td><td><span class="book-title">${escapeHtml(book.title)}</span></td><td>${escapeHtml(book.author)}</td><td>${escapeHtml(book.category)}</td><td>${book.quantity}</td><td>${statusPill(book.available)}</td><td><button class="button button-primary button-small" data-action="view" data-id="${escapeHtml(book._id)}">View</button></td></tr>`).join('') : '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">▤</div><h3>Your collection is ready</h3><p>Add your first book to see it appear here.</p><button class="button button-primary button-small" data-nav="add">Add a book</button></div></td></tr>'}</tbody>
@@ -214,6 +231,7 @@ function renderForm(book = {}) {
         <div class="form-field"><label for="category">Category <span class="required-mark">*</span></label><input class="form-control" id="category" name="category" required maxlength="80" list="category-options" placeholder="e.g. Computer Science" value="${escapeHtml(book.category || '')}"><datalist id="category-options">${categoryOptions}</datalist></div>
         <div class="form-field"><label for="quantity">Quantity <span class="required-mark">*</span></label><input class="form-control" id="quantity" name="quantity" type="number" required min="0" step="1" placeholder="Enter quantity" value="${book.quantity ?? ''}"></div>
         <div class="form-field"><span class="form-label">Availability</span><div class="radio-row"><label><input type="radio" name="available" value="true"${book.available !== false ? ' checked' : ''}> Available</label><label><input type="radio" name="available" value="false"${book.available === false ? ' checked' : ''}> Unavailable</label></div></div>
+        <div class="form-field full-width"><label for="coverImage">Book cover image URL <span style="color:#929eac;font-weight:400">(optional)</span></label><input class="form-control" id="coverImage" name="coverImage" type="url" maxlength="2048" placeholder="https://example.com/book-cover.jpg" value="${escapeHtml(book.coverImage || '')}"><small class="form-help">Paste an image URL, or leave blank to find a cover using the ISBN.</small></div>
         <div class="form-field full-width"><label for="description">Description <span style="color:#929eac;font-weight:400">(optional)</span></label><textarea class="form-control" id="description" name="description" maxlength="500" placeholder="Add a short description about this book…">${escapeHtml(book.description || '')}</textarea><small class="form-help">Up to 500 characters.</small></div>
       </div>
       <div class="form-actions"><button class="button button-secondary" type="button" data-action="cancel-form">Cancel</button><button class="button button-primary" type="submit">${isEdit ? 'Save changes' : 'Add book'}</button></div>
@@ -223,7 +241,7 @@ function renderForm(book = {}) {
 function renderDetail(book) {
   if (!book) return `${heading('Book details', 'This title could not be found.')}${emptyPanel('Book not found', 'It may have been removed from your collection.')}`;
   return `${heading('Book details', 'Full details for this collection title.', '<button class="button button-secondary" data-nav="books">← Back to books</button>')}
-    <div class="detail-grid"><div class="book-cover"><span class="cover-icon">▤</span><strong>${escapeHtml(book.title)}</strong><small>${escapeHtml(book.author)}</small></div>
+    <div class="detail-grid"><div class="book-cover">${coverImage(book, 'detail-cover-image')}</div>
       <section class="panel detail-card"><div class="detail-top"><div><h2>${escapeHtml(book.title)}</h2><p>by ${escapeHtml(book.author)}</p></div><div class="detail-buttons"><button class="button button-primary button-small" data-action="edit" data-id="${escapeHtml(book._id)}">✎ Edit</button><button class="button button-danger button-small" data-action="delete" data-id="${escapeHtml(book._id)}">Delete</button></div></div>
         <div class="detail-list"><div class="detail-item"><span>Availability</span>${statusPill(book.available)}</div><div class="detail-item"><span>Quantity</span><strong>${book.quantity} ${book.quantity === 1 ? 'copy' : 'copies'}</strong></div><div class="detail-item"><span>ISBN</span><strong>${escapeHtml(book.isbn)}</strong></div><div class="detail-item"><span>Category</span><strong>${escapeHtml(book.category)}</strong></div><div class="detail-item"><span>Added</span><strong>${formatDate(book.createdAt)}</strong></div><div class="detail-item"><span>Last updated</span><strong>${formatDate(book.updatedAt)}</strong></div></div>
         <div class="detail-item"><span>Description</span><p class="description-text">${escapeHtml(book.description || 'No description has been added for this title.')}</p></div>
@@ -306,6 +324,7 @@ async function saveBook(form) {
     quantity: Number(formData.get('quantity')),
     available: formData.get('available') === 'true',
     description: String(formData.get('description') || '').trim(),
+    coverImage: String(formData.get('coverImage') || '').trim(),
   };
   const submitButton = form.querySelector('button[type="submit"]');
   submitButton.disabled = true;

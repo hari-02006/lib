@@ -29,6 +29,12 @@ const bookSchema = new mongoose.Schema(
       maxlength: [500, 'Description cannot exceed 500 characters'],
       default: '',
     },
+    coverImage: {
+      type: String,
+      trim: true,
+      maxlength: [2048, 'Cover image URL cannot exceed 2048 characters'],
+      default: '',
+    },
     quantity: {
       type: Number,
       required: [true, 'Quantity is required'],
